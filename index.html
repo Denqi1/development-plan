@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>План развития — Frontend Dev</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e11;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #f0eff5;
+    --muted: #7a7a8e;
+    --faint: #3a3a4a;
+    --accent: #c8f542;
+    --accent-dim: rgba(200,245,66,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --teal: #34d399;
+    --teal-dim: rgba(52,211,153,0.12);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251,191,36,0.12);
+    --coral: #fb7185;
+    --coral-dim: rgba(251,113,133,0.12);
+    --r: 10px;
+    --r-lg: 16px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Onest', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* noise texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrap { max-width: 780px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* HERO */
+  .hero {
+    padding: 80px 0 64px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(200,245,66,0.25);
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+  }
+  .hero h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .hero-sub {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 480px;
+    font-weight: 300;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .meta-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .meta-val { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 400; color: var(--text); }
+
+  /* NAV */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(14,14,17,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+  }
+  .nav-inner {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-inner::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    font-family: 'Onest', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    background: none;
+    border: none;
+    padding: 14px 18px;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .nav-btn:hover { color: var(--text); }
+  .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* SECTIONS */
+  .section { padding: 56px 0; border-bottom: 1px solid var(--border); }
+  .section:last-child { border-bottom: none; }
+  .section-label {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+  }
+
+  /* PRIORITY CARDS */
+  .priority-group { margin-bottom: 36px; }
+  .priority-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .priority-group-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .pcard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 20px 24px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .pcard:hover { border-color: var(--border2); }
+  .pcard-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .chip {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .chip-accent { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(200,245,66,0.2); }
+  .chip-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+  .chip-teal { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(52,211,153,0.2); }
+  .chip-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(251,191,36,0.2); }
+  .chip-coral { background: var(--coral-dim); color: var(--coral); border: 1px solid rgba(251,113,133,0.2); }
+  .chip-gray { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); }
+  .pcard-title { font-size: 15px; font-weight: 500; color: var(--text); }
+  .pcard-desc { font-size: 13px; color: var(--muted); margin-top: 2px; font-weight: 300; }
+  .pcard-items { display: flex; flex-direction: column; gap: 5px; }
+  .pcard-item {
+    font-size: 13px;
+    color: var(--muted);
+    padding-left: 14px;
+    position: relative;
+    font-weight: 300;
+  }
+  .pcard-item::before { content: "—"; position: absolute; left: 0; color: var(--faint); }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 12px;
+    bottom: 12px;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--purple), var(--teal), var(--amber), var(--coral));
+    opacity: 0.4;
+  }
+  .tl-item { position: relative; margin-bottom: 36px; }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot {
+    position: absolute;
+    left: -25px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
+  .tl-month {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .tl-head {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .tl-body { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+
+  /* SCHEDULE */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .weekend-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .day-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 12px;
+  }
+  .day-name {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .day-task { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: flex; align-items: flex-start; gap: 6px; font-weight: 300; line-height: 1.4; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .schedule-note {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+  .schedule-note strong { color: var(--text); font-weight: 500; }
+
+  /* RULES */
+  .rules-grid { display: flex; flex-direction: column; gap: 10px; }
+  .rule {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .rule:hover { border-color: var(--border2); }
+  .rule-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--faint);
+    min-width: 28px;
+    line-height: 1;
+    padding-top: 2px;
+  }
+  .rule-body {}
+  .rule-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .rule-desc { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.5; }
+
+  /* PROGRESS (checklist) */
+  .checklist { display: flex; flex-direction: column; gap: 8px; }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    user-select: none;
+  }
+  .check-item:hover { border-color: var(--border2); }
+  .check-item.done { background: var(--accent-dim); border-color: rgba(200,245,66,0.2); }
+  .check-item.done .check-label { color: var(--muted); text-decoration: line-through; }
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--faint);
+    border-radius: 5px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .check-item.done .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .check-box svg { display: none; }
+  .check-item.done .check-box svg { display: block; }
+  .check-label { font-size: 13px; color: var(--text); font-weight: 400; flex: 1; }
+  .check-month { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .progress-bar-wrap {
+    background: var(--surface);
+    border-radius: 100px;
+    height: 4px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #7fff00);
+    border-radius: 100px;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .progress-label span { color: var(--accent); font-weight: 500; }
+
+  /* FOOTER */
+  .footer {
+    padding: 40px 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--faint);
+    font-weight: 300;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero { animation: fadeUp 0.5s ease both; }
+  .pcard, .tl-item, .rule, .day-box, .check-item {
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @media (max-width: 600px) {
+    .week-grid { grid-template-columns: repeat(3, 1fr); }
+    .hero { padding: 48px 0 40px; }
+    .section { padding: 40px 0; }
+  }
+  @media (max-width: 400px) {
+    .week-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-tag">Frontend Dev · Growth Plan</div>
+    <h1>Plan <em>×4</em><br>месяца</h1>
+    <p class="hero-sub">Персональный план развития от Junior+ до Middle — без выгорания, с чёткими приоритетами.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Позиция</span>
+        <span class="meta-val">Junior+</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Цель</span>
+        <span class="meta-val">Middle</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Компания</span>
+        <span class="meta-val">amoCRM</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Дедлайн</span>
+        <span class="meta-val">4 месяца</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="wrap">
+    <div class="nav-inner">
+      <button class="nav-btn active" onclick="scrollTo('priorities')">Приоритеты</button>
+      <button class="nav-btn" onclick="scrollTo('roadmap')">Роадмап</button>
+      <button class="nav-btn" onclick="scrollTo('schedule')">Расписание</button>
+      <button class="nav-btn" onclick="scrollTo('checklist')">Чеклист</button>
+      <button class="nav-btn" onclick="scrollTo('rules')">Без выгорания</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- PRIORITIES -->
+  <section class="section" id="priorities">
+    <div class="section-label">01</div>
+    <div class="section-title">Приоритеты</div>
+
+    <div class="priority-group">
+      <div class="priority-group-label">Уровень 1 — критично (4 месяца)</div>
+
+      <div class="pcard">
+        <div class="pcard-top">
+          <span class="chip chip-accent">Грейд</span>
+          <div>
+            <div class="pcard-title">Технические требования для повышения</div>
+            <div class="pcard-desc">Жёсткий дедлайн — через 4 месяца. Всё остальное вторично.</div>
+          </div>
+        </div>
+        <div class="pcard-items">
+          <div class="pcard-item">React углублённо + react-query</div>
+          <div class="pcard-item">Web API: Intersection Observer, Workers, IndexedDB, History</div>
+          <div class="pcard-item">Браузерный и сетевой кеш, нестандартные запросы</div>
+          <div class="pcard-item">Регулярные выражения</div>
+          <div class="pcard-item">Node.js + Express или Fastify</div>
+          <div class="pcard-item">Базовый Docker</div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-top">
+          <span class="chip chip-teal">Митап</span>
+          <div>
+            <div class="pcard-title">Выступление на внутреннем митапе</div>
+            <div class="pcard-desc">Обещание дано. Плюс прокачивает soft skills и закрепляет знания.</div>
+          </div>
+        </div>
+        <div class="pcard-items">
+          <div class="pcard-item">Выбери тему из того, что изучаешь прямо сейчас — убиваешь двух зайцев</div>
+          <div class="pcard-item">Например: "Web Workers на практике" или "react-query изнутри"</div>
+          <div class="pcard-item">Готовь за 3–4 недели до митапа, не в последний момент</div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-top">
+          <span class="chip chip-amber">Поиск работы</span>
+          <div>
+            <div class="pcard-title">Параллельный поиск нового места</div>
+            <div class="pcard-desc">Важно, но не горит прямо сейчас — начни через 1.5–2 месяца.</div>
+          </div>
+        </div>
+        <div class="pcard-items">
+          <div class="pcard-item">Сначала закрой 60–70% требований — резюме станет сильнее</div>
+          <div class="pcard-item">Потом обновляй резюме и начинай откликаться</div>
+          <div class="pcard-item">Собеседования сами по себе — отличная практика</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-group">
+      <div class="priority-group-label">Уровень 2 — на потом</div>
+      <div class="pcard">
+        <div class="pcard-top">
+          <span class="chip chip-gray">Отложить</span>
+          <div>
+            <div class="pcard-title">Английский, математика, университет, Mind Revolution</div>
+            <div class="pcard-desc">Долгосрочные цели — начни после того, как закроешь грейд.</div>
+          </div>
+        </div>
+        <div class="pcard-items">
+          <div class="pcard-item">Английский — 15 мин в день можно начать прямо сейчас как фоновую привычку</div>
+          <div class="pcard-item">Математика и поступление — отдельный большой проект на следующий этап</div>
+          <div class="pcard-item">Mind Revolution — запланируй на 5-й месяц</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section class="section" id="roadmap">
+    <div class="section-label">02</div>
+    <div class="section-title">4-месячный роадмап</div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot" style="background: var(--purple);"></div>
+        <div class="tl-month">Месяц 1</div>
+        <div class="tl-head" style="color: var(--purple);">React углублённо + react-query</div>
+        <div class="tl-body">Это база. Без уверенного React остальное строить сложнее. Параллельно — регулярные выражения (небольшая тема, 2–3 недели).</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background: var(--teal);"></div>
+        <div class="tl-month">Месяц 2</div>
+        <div class="tl-head" style="color: var(--teal);">Web API + кеш и сеть</div>
+        <div class="tl-body">Intersection Observer, Workers, IndexedDB, History. Браузерный и сетевой кеш, нестандартные запросы. Начать обновлять резюме и первые отклики.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background: var(--amber);"></div>
+        <div class="tl-month">Месяц 3</div>
+        <div class="tl-head" style="color: var(--amber);">Node.js + Express/Fastify</div>
+        <div class="tl-body">Написать простой API. Понять как работает сервер изнутри — это сильно прокачает понимание фронтенд-задач. Активный поиск работы.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background: var(--coral);"></div>
+        <div class="tl-month">Месяц 4</div>
+        <div class="tl-head" style="color: var(--coral);">Docker + финальное закрепление</div>
+        <div class="tl-body">Базовый Docker: образы, контейнеры, docker-compose. Повторение всего пройденного. Подготовка к разговору о повышении с конкретными примерами.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCHEDULE -->
+  <section class="section" id="schedule">
+    <div class="section-label">03</div>
+    <div class="section-title">Шаблон недели</div>
+
+    <div class="week-grid">
+      <div class="day-box">
+        <div class="day-name">Пн</div>
+        <div class="day-task"><span class="dot" style="background: var(--purple);"></span>Тема месяца · 45 мин</div>
+        <div class="day-task"><span class="dot" style="background: var(--teal);"></span>Практика · 30 мин</div>
+      </div>
+      <div class="day-box">
+        <div class="day-name">Вт</div>
+        <div class="day-task"><span class="dot" style="background: var(--purple);"></span>Тема месяца · 45 мин</div>
+        <div class="day-task"><span class="dot" style="background: var(--amber);"></span>Резюме / отклики · 20 мин</div>
+      </div>
+      <div class="day-box">
+        <div class="day-name">Ср</div>
+        <div class="day-task"><span class="dot" style="background: var(--purple);"></span>Тема месяца · 45 мин</div>
+        <div class="day-task"><span class="dot" style="background: var(--coral);"></span>Митап / слайды · 30 мин</div>
+      </div>
+      <div class="day-box">
+        <div class="day-name">Чт</div>
+        <div class="day-task"><span class="dot" style="background: var(--purple);"></span>Тема месяца · 45 мин</div>
+        <div class="day-task"><span class="dot" style="background: var(--teal);"></span>Pet-project · 30 мин</div>
+      </div>
+      <div class="day-box">
+        <div class="day-name">Пт</div>
+        <div class="day-task"><span class="dot" style="background: var(--purple);"></span>Тема месяца · 45 мин</div>
+        <div class="day-task"><span class="dot" style="background: var(--amber);"></span>Ревью недели · 15 мин</div>
+      </div>
+    </div>
+
+    <div class="weekend-grid">
+      <div class="day-box">
+        <div class="day-name">Сб</div>
+        <div class="day-task"><span class="dot" style="background: var(--purple);"></span>Глубокое изучение · 1.5 ч</div>
+        <div class="day-task"><span class="dot" style="background: var(--coral);"></span>Митап (раз в 2 нед.) · 1 ч</div>
+      </div>
+      <div class="day-box">
+        <div class="day-name">Вс</div>
+        <div class="day-task"><span class="dot" style="background: var(--faint);"></span>Полный отдых</div>
+        <div class="day-task"><span class="dot" style="background: var(--faint);"></span>Лёгкое чтение — без давления</div>
+      </div>
+    </div>
+
+    <div class="schedule-note">
+      <strong>Итого:</strong> ~1–1.5 ч в будни, ~1.5–2 ч в субботу, воскресенье свободно. Устойчивый темп без выгорания.
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="section" id="checklist">
+    <div class="section-label">04</div>
+    <div class="section-title">Чеклист тем</div>
+
+    <div class="progress-label">
+      <span>Прогресс</span>
+      <span id="prog-text">0 / 10</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="prog-bar" style="width: 0%;"></div>
+    </div>
+
+    <div class="checklist" id="checklist-list">
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0e0e11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="check-label">React углублённо</span>
+        <span class="check-month">Месяц 1</span>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0e0e11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="check-label">react-query</span>
+        <span class="check-month">Месяц 1</span>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0e0e11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="check-label">Регулярные выражения</span>
+        <span class="check-month">Месяц 1</span>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0e0e11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="check-label">Web API: Intersection Observer, Workers, IndexedDB, History</span>
+        <span class="check-month">Месяц 2</span>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0e0e11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="check-label">Браузерный и сетевой кеш, нестандартные запросы</span>
+        <span class="check-month">Месяц 2</span>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0e0e11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="check-label">Обновить резюме и начать отклики</span>
+        <span class="check-month">Месяц 2</span>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0e0e11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="check-label">Node.js + Express или Fastify</span>
+        <span class="check-month">Месяц 3</span>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0e0e11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="check-label">Написать простой API-сервер</span>
+        <span class="check-month">Месяц 3</span>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0e0e11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="check-label">Базовый Docker: образы, контейнеры, docker-compose</span>
+        <span class="check-month">Месяц 4</span>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0e0e11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="check-label">Провести митап, поговорить о повышении</span>
+        <span class="check-month">Месяц 4</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section class="section" id="rules">
+    <div class="section-label">05</div>
+    <div class="section-title">Без выгорания</div>
+
+    <div class="rules-grid">
+      <div class="rule">
+        <div class="rule-num">1</div>
+        <div class="rule-body">
+          <div class="rule-title">Одна тема за раз</div>
+          <div class="rule-desc">Не учи Node.js и Web API одновременно. Доводи тему до уровня "могу объяснить" — потом следующая.</div>
+        </div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">2</div>
+        <div class="rule-body">
+          <div class="rule-title">Практика важнее чтения</div>
+          <div class="rule-desc">Прочитал — сразу напиши код. Даже 10 строк. Без практики знания не закрепляются.</div>
+        </div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">3</div>
+        <div class="rule-body">
+          <div class="rule-title">Воскресенье — священно</div>
+          <div class="rule-desc">Полный отдых от кода. Это не лень — это топливо для остальных шести дней.</div>
+        </div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">4</div>
+        <div class="rule-body">
+          <div class="rule-title">Если пропустил — не догоняй</div>
+          <div class="rule-desc">Пропустил день? Просто продолжай завтра. Попытка "навёрстывать" — путь к выгоранию за 2 недели.</div>
+        </div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">5</div>
+        <div class="rule-body">
+          <div class="rule-title">Тема для митапа = тема для грейда</div>
+          <div class="rule-desc">Выбери то, что изучаешь прямо сейчас. Подготовка к выступлению углубляет знания — не тратишь время дважды.</div>
+        </div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">6</div>
+        <div class="rule-body">
+          <div class="rule-title">Английский — только как привычка</div>
+          <div class="rule-desc">15 минут утром или в обед. Подкаст, статья, Duolingo. Не курс — просто ежедневный контакт с языком.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">Denqil · Frontend Dev Plan · 2025</div>
+</div>
+
+<script>
+  function scrollTo(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+
+  function toggle(el) {
+    el.classList.toggle('done');
+    updateProgress();
+    saveState();
+  }
+
+  function updateProgress() {
+    const items = document.querySelectorAll('.check-item');
+    const done = document.querySelectorAll('.check-item.done').length;
+    const total = items.length;
+    document.getElementById('prog-text').textContent = done + ' / ' + total;
+    document.getElementById('prog-bar').style.width = Math.round(done / total * 100) + '%';
+  }
+
+  function saveState() {
+    const states = [];
+    document.querySelectorAll('.check-item').forEach(el => {
+      states.push(el.classList.contains('done'));
+    });
+    try { localStorage.setItem('plan_checks', JSON.stringify(states)); } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const states = JSON.parse(localStorage.getItem('plan_checks') || '[]');
+      document.querySelectorAll('.check-item').forEach((el, i) => {
+        if (states[i]) el.classList.add('done');
+      });
+    } catch(e) {}
+    updateProgress();
+  }
+
+  window.addEventListener('scroll', () => {
+    const sections = ['priorities','roadmap','schedule','checklist','rules'];
+    const btns = document.querySelectorAll('.nav-btn');
+    let current = 0;
+    sections.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 80) current = i;
+    });
+    btns.forEach((b, i) => b.classList.toggle('active', i === current));
+  });
+
+  loadState();
+</script>
+</body>
+</html>
